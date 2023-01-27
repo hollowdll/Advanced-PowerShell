@@ -16,3 +16,8 @@ Reload a module without reopening terminal
 ```powershell
 Import-Module -Name "module name" -Force
 ```
+
+Remove a module from PowerShell session
+```powershell
+Remove-Module "module name"
+```
