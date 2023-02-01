@@ -5,19 +5,24 @@ Locations where modules should be (First path = user, second path = system)
 $env:PsModulePath.split(";")
 ```
 
-Remove double quotes when executing!
+**Remove brackets "[ ]" when executing!**
 
 Reload a module
 ```powershell
-Import-Module "module name"
+Import-Module [module]
 ```
 
 Reload a module without reopening terminal
 ```powershell
-Import-Module -Name "module name" -Force
+Import-Module -Name [module name] -Force
 ```
 
 Remove a module from PowerShell session
 ```powershell
-Remove-Module "module name"
+Remove-Module [module name]
+```
+
+Display help for a command
+```powershell
+Get-Help [cmdlet name] -Full
 ```
