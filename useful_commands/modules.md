@@ -9,7 +9,7 @@ $env:PsModulePath.split(";")
 
 Reload a module
 ```powershell
-Import-Module [module]
+Import-Module [module name]
 ```
 
 Reload a module without reopening terminal

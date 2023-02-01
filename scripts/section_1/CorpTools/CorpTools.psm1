@@ -18,6 +18,7 @@ function Get-FileVersion {
     This example retrieves information from one file.
     #>
 
+    # Can use -Whatif and -Confirm parameters
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
     Param(
         [Parameter(Mandatory=$true,
