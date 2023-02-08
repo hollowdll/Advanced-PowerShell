@@ -44,3 +44,30 @@ Function Get-MemInfo {
         } # Computer
     } # Process
 } # Function
+
+function Get-DiskInfo {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $false)]
+        [string[]]$ComputerName = @("localhost")
+    )
+
+    PROCESS {
+        $BYTES_PER_GiB = [Math]::Pow(1024, 3)
+        foreach ($computer in $ComputerName) {
+            if ($computer -eq $ENV:ComputerName) { $computer = 'localhost' }
+            $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
+            $disks = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DriveType=3" @arguments
+
+            foreach ($disk in $disks) {
+                $output = [pscustomobject][ordered]@{
+                    'ComputerName'    = $computer
+                    'DriveLetter'     = $disk.DeviceId
+                    'FreeSpace (GiB)' = [Math]::Round($disk.FreeSpace / $BYTES_PER_GiB, 2)
+                    'Size (GiB)'      = [Math]::Round($disk.Size / $BYTES_PER_GiB, 2)
+                }
+                Write-Output $output
+            }
+        }
+    }
+}

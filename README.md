@@ -17,7 +17,7 @@ For security purposes, it might be a good idea to enable script execution only i
 
 To do so:
 
-Allow local scripts and scripts downloaded with digital signatures to run
+Allow execution of scripts created on local machine and scripts downloaded with digital signatures
 ```PowerShell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 ```
