@@ -71,3 +71,37 @@ function Get-DiskInfo {
         }
     }
 }
+
+function Get-NetAdapterInfo {
+    [CmdletBinding()]
+    Param(
+        [string[]]$ComputerName = @("localhost")
+    )
+
+    PROCESS {
+        foreach ($computer in $ComputerName) {
+            if ($computer -eq $ENV:ComputerName) { $computer = 'localhost' }
+            $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
+            Write-Verbose "Connecting to $computer"
+            $session = New-CimSession @arguments
+            $adapters = Get-NetAdapter -CimSession $session
+
+            foreach ($adapter in $adapters) {
+                $addresses = Get-NetIPAddress -InterfaceIndex ($adapter.InterfaceIndex) -CimSession $session
+
+                foreach ($address in $addresses) {
+                    $output = [PSCustomObject][ordered]@{
+                        'ComputerName' = $computer
+                        'AdapterName' = $adapter.Name
+                        'InterfaceIndex' = $adapter.InterfaceIndex
+                        'IPAddress' = $address.IPAddress
+                        'AddressFamily' = $address.AddressFamily
+                    }
+                    Write-Output $output
+                }
+            }
+            Write-Verbose "Closing session to $computer"
+            Remove-CimSession -CimSession $session
+        }
+    }
+}
