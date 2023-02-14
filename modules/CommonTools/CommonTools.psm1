@@ -8,15 +8,22 @@ Function Get-OSInfo {
         $CVPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
         foreach ($computer in $computername) {
             if ($computer -eq $ENV:ComputerName) { $computer = 'localhost'}
-            $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer }}
-            $OS = Get-CimInstance -ClassName Win32_OperatingSystem @arguments
+            $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
+            try {
+                $OS = Get-CimInstance -ClassName Win32_OperatingSystem @arguments -ErrorAction Stop
+            } catch {
+                Write-Warning "$computer failed - logged to errors.txt"
+                $Date = Get-Date
+                "[$Date] $computer failed" | Out-File -FilePath .\errors.txt -Append
+                continue
+            }
             $ReleaseID = (Get-ItemProperty -Path $CVPath -Name ReleaseId).ReleaseId
             $output = [pscustomobject][ordered]@{
-                'OSName' = $OS.Caption
+                'OSName'         = $OS.Caption
                 'OSArchitecture' = $OS.OSArchitecture
-                'OSLanguage' = $OS.MUILanguages[0]
-                'OSVersion' = $ReleaseID
-                'OSBuild' = $OS.Version
+                'OSLanguage'     = $OS.MUILanguages[0]
+                'OSVersion'      = $ReleaseID
+                'OSBuild'        = $OS.Version
             }
             Write-Output $output
         } # Computers
@@ -33,12 +40,12 @@ Function Get-MemInfo {
         $KiB_PER_GiB = [Math]::Pow(1024,2)
         foreach ($computer in $computername) {
             if ($computer -eq $ENV:ComputerName) { $computer = 'localhost'}
-            $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer }}
+            $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
             $Memory = Get-CimInstance -ClassName Win32_OperatingSystem @arguments
             $output = [pscustomobject][ordered]@{
                 'FreeMemory (GiB)'  = [Math]::Round($Memory.FreePhysicalMemory / $KiB_PER_GiB, 2)
                 'TotalMemory (GiB)' = [Math]::Round($Memory.TotalVisibleMemorySize / $KiB_PER_GiB, 2)
-                'Occupied' = [Math]::Round($Memory.FreePhysicalMemory * 100 / $Memory.TotalVisibleMemorySize, 2)
+                'Occupied'          = [Math]::Round($Memory.FreePhysicalMemory * 100 / $Memory.TotalVisibleMemorySize, 2)
             }
             Write-Output $output
         } # Computer
@@ -91,11 +98,11 @@ function Get-NetAdapterInfo {
 
                 foreach ($address in $addresses) {
                     $output = [PSCustomObject][ordered]@{
-                        'ComputerName' = $computer
-                        'AdapterName' = $adapter.Name
+                        'ComputerName'   = $computer
+                        'AdapterName'    = $adapter.Name
                         'InterfaceIndex' = $adapter.InterfaceIndex
-                        'IPAddress' = $address.IPAddress
-                        'AddressFamily' = $address.AddressFamily
+                        'IPAddress'      = $address.IPAddress
+                        'AddressFamily'  = $address.AddressFamily
                     }
                     Write-Output $output
                 }
