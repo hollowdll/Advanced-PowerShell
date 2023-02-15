@@ -25,8 +25,6 @@ set "name"
 
 ## File system
 
-#
-
 Current location
 ```powershell
 Get-Location
@@ -76,4 +74,9 @@ Remove-Item "name"
 ```
 ```powershell
 rm "name"
+```
+
+List contents of Path
+```powershell
+$env:Path.split(";")
 ```
