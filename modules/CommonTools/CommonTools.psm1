@@ -14,11 +14,12 @@ Function Get-OSInfo {
             } catch {
                 Write-Warning "$computer failed - logged to errors.txt"
                 $Date = Get-Date
-                "[$Date] $computer failed" | Out-File -FilePath .\errors.txt -Append
+                "[$Date] $computer failed in GetOSInfo cmdlet" | Out-File -FilePath .\errors.txt -Append
                 continue
             }
             $ReleaseID = (Get-ItemProperty -Path $CVPath -Name ReleaseId).ReleaseId
             $output = [pscustomobject][ordered]@{
+                'ComputerName'   = $computer
                 'OSName'         = $OS.Caption
                 'OSArchitecture' = $OS.OSArchitecture
                 'OSLanguage'     = $OS.MUILanguages[0]
@@ -41,8 +42,16 @@ Function Get-MemInfo {
         foreach ($computer in $computername) {
             if ($computer -eq $ENV:ComputerName) { $computer = 'localhost'}
             $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
-            $Memory = Get-CimInstance -ClassName Win32_OperatingSystem @arguments
+            try {
+                $Memory = Get-CimInstance -ClassName Win32_OperatingSystem @arguments -ErrorAction Stop
+            } catch {
+                Write-Warning "$computer failed - logged to errors.txt"
+                $Date = Get-Date
+                "[$Date] $computer failed in Get-MemInfo cmdlet" | Out-File -FilePath .\errors.txt -Append
+                continue
+            }
             $output = [pscustomobject][ordered]@{
+                'ComputerName'      = $computer
                 'FreeMemory (GiB)'  = [Math]::Round($Memory.FreePhysicalMemory / $KiB_PER_GiB, 2)
                 'TotalMemory (GiB)' = [Math]::Round($Memory.TotalVisibleMemorySize / $KiB_PER_GiB, 2)
                 'Occupied'          = [Math]::Round($Memory.FreePhysicalMemory * 100 / $Memory.TotalVisibleMemorySize, 2)
@@ -64,7 +73,14 @@ function Get-DiskInfo {
         foreach ($computer in $ComputerName) {
             if ($computer -eq $ENV:ComputerName) { $computer = 'localhost' }
             $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
-            $disks = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DriveType=3" @arguments
+            try {
+                $disks = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DriveType=3" @arguments -ErrorAction Stop
+            } catch {
+                Write-Warning "$computer failed - logged to errors.txt"
+                $Date = Get-Date
+                "[$Date] $computer failed in Get-DiskInfo cmdlet" | Out-File -FilePath .\errors.txt -Append
+                continue
+            }
 
             foreach ($disk in $disks) {
                 $output = [pscustomobject][ordered]@{
@@ -90,7 +106,14 @@ function Get-NetAdapterInfo {
             if ($computer -eq $ENV:ComputerName) { $computer = 'localhost' }
             $arguments = if ($computer -eq "localhost") { @{} } else { @{ 'ComputerName' = $computer } }
             Write-Verbose "Connecting to $computer"
-            $session = New-CimSession @arguments
+            try {
+                $session = New-CimSession @arguments -ErrorAction Stop
+            } catch {
+                Write-Warning "$computer failed - logged to errors.txt"
+                $Date = Get-Date
+                "[$Date] $computer failed in Get-NetAdapterInfo cmdlet" | Out-File -FilePath .\errors.txt -Append
+                continue
+            }
             $adapters = Get-NetAdapter -CimSession $session
 
             foreach ($adapter in $adapters) {
