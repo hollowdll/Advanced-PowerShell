@@ -1,6 +1,7 @@
+$ID = 1
 $RequestParameters = @{
-    URI     = "http://localhost:3000/api/resource"
-    Method  = "POST"
+    URI     = "http://localhost:3000/api/resource/$ID"
+    Method  = "PUT"
     Headers = @{
         "Content-Type" = "application/json"
     }

@@ -1,13 +1,7 @@
+$ID = 1
 $RequestParameters = @{
-    URI     = "http://localhost:3000/api/resource"
-    Method  = "POST"
-    Headers = @{
-        "Content-Type" = "application/json"
-    }
-    Body    = @{
-        "name"    = "Test";
-        "example" = "example";
-    } | ConvertTo-Json
+    URI     = "http://localhost:3000/api/resource/$ID"
+    Method  = "DELETE"
 }
 
 $Response = Invoke-WebRequest @RequestParameters
