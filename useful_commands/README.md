@@ -80,3 +80,10 @@ List contents of Path
 ```powershell
 $env:Path.split(";")
 ```
+
+## Cmdlets
+
+Display methods, properties and member types of objects
+```powershell
+[cmdlet that returns object] | Get-Member
+```
