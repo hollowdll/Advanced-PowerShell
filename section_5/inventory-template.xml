@@ -1,0 +1,18 @@
+<computers>
+    <computer
+        name="localhost"
+        OSName=""
+        OSArchitecture=""
+        OSLanguage=""
+        OSVersion=""
+        OSBuild=""
+    />
+    <computer
+        name="testhost"
+        OSName=""
+        OSArchitecture=""
+        OSLanguage=""
+        OSVersion=""
+        OSBuild=""
+    />
+</computers>
